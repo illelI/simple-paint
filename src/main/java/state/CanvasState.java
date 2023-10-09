@@ -1,6 +1,7 @@
 package state;
 
 import components.MainPanel;
+import components.Frame;
 import model.Canvas;
 import model.ShapesList;
 
@@ -13,14 +14,18 @@ public abstract class CanvasState extends JPanel implements MouseListener, Mouse
     protected MainPanel mainPanel;
     protected Point mousePressedPoint;
     protected Point mouseReleasedPoint;
-    private Canvas canvas;
+    private final Canvas canvas;
+    protected final Frame frame;
 
-    CanvasState(MainPanel panel) {
+    CanvasState(MainPanel panel, Frame frame) {
         this.mainPanel = panel;
+        this.frame = frame;
         canvas = Canvas.getInstance();
     }
 
     public abstract void draw();
+    public abstract void showDrawingDialog();
+    public abstract void showChangePropertiesDialog();
 
     public Canvas getCanvas() {
         return canvas;

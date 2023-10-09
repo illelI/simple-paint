@@ -1,17 +1,28 @@
 package state;
 
+import components.Frame;
 import components.MainPanel;
 
 import java.awt.event.MouseEvent;
 
 public class SelectState extends CanvasState{
 
-    public SelectState(MainPanel panel) {
-        super(panel);
+    public SelectState(MainPanel panel, Frame frame) {
+        super(panel, frame);
     }
 
     @Override
     public void draw() {
+
+    }
+
+    @Override
+    public void showDrawingDialog() {
+
+    }
+
+    @Override
+    public void showChangePropertiesDialog() {
 
     }
 

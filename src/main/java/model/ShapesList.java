@@ -3,19 +3,20 @@ package model;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ShapesList implements Serializable {
-    ArrayList<Shape> shapes;
+    List<Shape> shapes;
 
     public ShapesList() {
         shapes = new ArrayList<>();
     }
 
-    public void setShapes(ArrayList<Shape> shapes) {
+    public void setShapes(List<Shape> shapes) {
         this.shapes = shapes;
     }
 
-    public ArrayList<Shape> getShapes() {
+    public List<Shape> getShapes() {
         return shapes;
     }
 }

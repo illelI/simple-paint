@@ -1,5 +1,6 @@
 package state;
 
+import components.Frame;
 import components.MainPanel;
 
 import javax.swing.*;
@@ -13,8 +14,8 @@ public class DrawFreeState extends CanvasState{
 
     Point point = new Point();
 
-    public DrawFreeState(MainPanel panel) {
-        super(panel);
+    public DrawFreeState(MainPanel panel, Frame frame) {
+        super(panel, frame);
     }
 
     @Override
@@ -31,6 +32,16 @@ public class DrawFreeState extends CanvasState{
         g2d.fill(circle);
 
         getCanvas().getShapes().getShapes().add(circle);
+    }
+
+    @Override
+    public void showDrawingDialog() {
+
+    }
+
+    @Override
+    public void showChangePropertiesDialog() {
+
     }
 
     @Override

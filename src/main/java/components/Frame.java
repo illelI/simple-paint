@@ -1,12 +1,10 @@
 package components;
 
 import model.ShapesList;
-import state.DrawCircleState;
-import state.DrawFreeState;
-import state.DrawLineState;
-import state.DrawRectangleState;
+import state.*;
 
 import javax.swing.*;
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.awt.*;
 import java.io.*;
 
@@ -16,7 +14,7 @@ public class Frame extends JFrame {
     public Frame(String title, int xSize, int ySize) {
         super(title);
 
-        mainPanel = new MainPanel();
+        mainPanel = new MainPanel(this);
         mainPanel.setBackground(Color.white);
 
         Container contentPane = getContentPane();
@@ -88,6 +86,8 @@ public class Frame extends JFrame {
         JToggleButton selectBtn = new JToggleButton("Select");
         JToggleButton paintBtn = new JToggleButton("Paint");
         JComboBox shapesBox = new JComboBox(new String[] {"Line", "Rectangle", "Circle", "Free"});
+        JButton drawFromTextField = new JButton("Draw from text field");
+
 
         selectBtn.addActionListener( l -> {
             selectBtn.setEnabled(false);
@@ -106,6 +106,20 @@ public class Frame extends JFrame {
             if (paintBtn.isSelected()) {
                 shapesBoxState(shapesBox);
             }
+            drawFromTextField.setEnabled(shapesBox.getSelectedIndex() <= 2);
+        });
+
+        drawFromTextField.addActionListener(l -> {
+            if(mainPanel.getState() instanceof SelectState) {
+                shapesBoxState(shapesBox);
+
+                mainPanel.getState().showDrawingDialog();
+
+                mainPanel.changeState(new SelectState(mainPanel, this));
+            }
+            else {
+                mainPanel.getState().showDrawingDialog();
+            }
         });
 
         selectBtn.setSelected(true);
@@ -113,6 +127,7 @@ public class Frame extends JFrame {
         toolBar.add(selectBtn);
         toolBar.add(paintBtn);
         toolBar.add(shapesBox);
+        toolBar.add(drawFromTextField);
 
         toolBar.setFloatable(false);
 
@@ -121,20 +136,12 @@ public class Frame extends JFrame {
 
     private void shapesBoxState(JComboBox shapesBox) {
         switch (shapesBox.getSelectedIndex()) {
-            case 0:
-                mainPanel.changeState(new DrawLineState(mainPanel));
-                break;
-            case 1:
-                mainPanel.changeState(new DrawRectangleState(mainPanel));
-                break;
-            case 2:
-                mainPanel.changeState(new DrawCircleState(mainPanel));
-                break;
-            case 3:
-                mainPanel.changeState(new DrawFreeState(mainPanel));
-                break;
-            default:
-                break;
+            case 0 -> mainPanel.changeState(new DrawLineState(mainPanel, this));
+            case 1 -> mainPanel.changeState(new DrawRectangleState(mainPanel, this));
+            case 2 -> mainPanel.changeState(new DrawCircleState(mainPanel, this));
+            case 3 -> mainPanel.changeState(new DrawFreeState(mainPanel, this));
+            default -> {
+            }
         }
     }
 

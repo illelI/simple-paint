@@ -13,9 +13,10 @@ import java.awt.event.MouseMotionListener;
 public class MainPanel extends JPanel implements MouseListener, MouseMotionListener {
 
     private CanvasState state;
-
-    public MainPanel() {
-        this.state = new SelectState(this);
+    private Frame holder;
+    public MainPanel(Frame frame) {
+        this.holder = frame;
+        this.state = new SelectState(this, holder);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
     }
