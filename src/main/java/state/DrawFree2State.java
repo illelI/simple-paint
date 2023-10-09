@@ -3,35 +3,34 @@ package state;
 import components.Frame;
 import components.MainPanel;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import java.awt.geom.GeneralPath;
 
-public class DrawFreeState extends CanvasState{
+public class DrawFree2State extends CanvasState{
 
-    Point point = new Point();
+    private GeneralPath path;
+    private boolean isStarted;
 
-    public DrawFreeState(MainPanel panel, Frame frame) {
+    public DrawFree2State(MainPanel panel, Frame frame) {
         super(panel, frame);
+        path = new GeneralPath();
+        isStarted = false;
     }
-
     @Override
     public void draw() {
         Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
 
-        int x = point.getX();
-        int y = point.getY();
+        if (!isStarted) {
+            path.moveTo(mousePressedPoint.getX(), mousePressedPoint.getY());
+            isStarted = true;
+        }
 
-        Ellipse2D circle = new Ellipse2D.Double(x - 5, y - 5, 10, 10);
-
+        path.lineTo(mouseReleasedPoint.getX(), mouseReleasedPoint.getY());
 
         g2d.setColor(Color.BLACK);
-        g2d.fill(circle);
-
-        getCanvas().getShapes().getShapes().add(circle);
+        g2d.draw(path);
+        getCanvas().getShapes().getShapes().add(path);
     }
 
     @Override
@@ -41,14 +40,14 @@ public class DrawFreeState extends CanvasState{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        mousePressedPoint = new Point(e.getX(), e.getY());
+        mouseReleasedPoint = new Point(e.getX(), e.getY());
+        draw();
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        point.setX(e.getX());
-        point.setY(e.getY());
-        draw();
+
     }
 
     @Override
@@ -68,9 +67,7 @@ public class DrawFreeState extends CanvasState{
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        point.setX(e.getX());
-        point.setY(e.getY());
-        draw();
+
     }
 
     @Override

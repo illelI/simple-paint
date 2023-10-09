@@ -25,7 +25,6 @@ public abstract class CanvasState extends JPanel implements MouseListener, Mouse
 
     public abstract void draw();
     public abstract void showDrawingDialog();
-    public abstract void showChangePropertiesDialog();
 
     public Canvas getCanvas() {
         return canvas;
@@ -35,6 +34,7 @@ public abstract class CanvasState extends JPanel implements MouseListener, Mouse
         canvas.setShapes(shapesList);
         Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
         for (Shape s : shapesList.getShapes()) {
+            if(s == null) continue;
             g2d.draw(s);
         }
     }

@@ -43,7 +43,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        state.mouseClicked(e);
     }
 
     @Override

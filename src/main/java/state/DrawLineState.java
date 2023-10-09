@@ -68,12 +68,6 @@ public class DrawLineState extends CanvasState{
     }
 
     @Override
-    public void showChangePropertiesDialog() {
-
-    }
-
-
-    @Override
     public void mouseClicked(MouseEvent e) {
 
     }
