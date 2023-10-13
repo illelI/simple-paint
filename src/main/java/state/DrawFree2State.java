@@ -30,7 +30,7 @@ public class DrawFree2State extends CanvasState{
 
         g2d.setColor(Color.BLACK);
         g2d.draw(path);
-        getCanvas().getShapes().getShapes().add(path);
+        getCanvas().getShapes().addShape(path);
     }
 
     @Override

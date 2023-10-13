@@ -40,7 +40,7 @@ public class DrawRectangleState extends CanvasState{
         g2d.setColor(Color.BLACK);
         g2d.draw(rectangle);
 
-        getCanvas().getShapes().getShapes().add(rectangle);
+        getCanvas().addShape(rectangle);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class DrawRectangleState extends CanvasState{
             int heightInt = Integer.parseInt(height.getText());
             Rectangle2D rectangle = new Rectangle2D.Float(x, y, widthInt, heightInt);
             g2d.draw(rectangle);
-            getCanvas().getShapes().getShapes().add(rectangle);
+            getCanvas().addShape(rectangle);
         }
     }
 

@@ -27,7 +27,7 @@ public class DrawLineState extends CanvasState{
         g2d.setColor(Color.BLACK);
         g2d.draw(line);
 
-        getCanvas().getShapes().getShapes().add(line);
+        getCanvas().addShape(line);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DrawLineState extends CanvasState{
 
             Line2D line = new Line2D.Float(x1, y1, x2, y2);
             g2d.draw(line);
-            getCanvas().getShapes().getShapes().add(line);
+            getCanvas().addShape(line);
         }
     }
 

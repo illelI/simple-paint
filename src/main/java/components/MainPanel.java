@@ -15,6 +15,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private CanvasState state;
     private Frame holder;
     public MainPanel(Frame frame) {
+        super();
         this.holder = frame;
         this.state = new SelectState(this, holder);
         this.addMouseListener(this);
@@ -38,6 +39,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         super.paintComponent(g2d);
+        for (Shape s : state.getCanvas().getShapesList()) {
+            if(s == null) continue;
+            g2d.draw(s);
+        }
+    }
+
+    public void paintImage(Graphics g, Image img) {
+        this.setSize(img.getWidth(null), img.getHeight(null));
+        super.paintComponents(g);
+        SwingUtilities.invokeLater(() -> g.drawImage(img, 0, 0, null));
     }
 
 

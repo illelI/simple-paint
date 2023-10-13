@@ -4,13 +4,15 @@ import model.ShapesList;
 import state.*;
 
 import javax.swing.*;
-import javax.swing.plaf.synth.SynthOptionPaneUI;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RectangularShape;
+import java.awt.image.ImageObserver;
 import java.io.*;
+import java.util.Locale;
+
 
 public class Frame extends JFrame {
 
@@ -37,6 +39,12 @@ public class Frame extends JFrame {
         JMenuItem newMenuItem = new JMenuItem("New");
         newMenuItem.setActionCommand("New");
 
+        JMenuItem importItem = new JMenuItem("Import");
+        importItem.setActionCommand("Import");
+
+        JMenuItem exportItem = new JMenuItem("Export");
+        exportItem.setActionCommand("Export");
+
         JMenuItem openMenuItem = new JMenuItem("Open");
         openMenuItem.setActionCommand("Open");
 
@@ -46,7 +54,10 @@ public class Frame extends JFrame {
         JMenuItem closeMenuItem = new JMenuItem("Close");
         closeMenuItem.setActionCommand("Close");
 
-        newMenuItem.addActionListener(l -> System.out.println("New Clicked"));
+        newMenuItem.addActionListener(l -> System.out.println("New clicked"));
+
+        importItem.addActionListener(l -> chooseImage());
+
         saveMenuItem.addActionListener(l -> {
             try {
                 File file = new File("save.txt");
@@ -78,6 +89,8 @@ public class Frame extends JFrame {
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
+        fileMenu.add(importItem);
+        fileMenu.add(exportItem);
         fileMenu.add(closeMenuItem);
 
         menuBar.add(fileMenu);
@@ -139,9 +152,9 @@ public class Frame extends JFrame {
 
                 Shape shape = ((SelectState) mainPanel.getState()).getCurrentShape();
                 switch (shape) {
-                    case Ellipse2D circle -> circleDialog(circle);
-                    case Rectangle2D rect -> rectangleDialog(rect);
-                    case Line2D line -> lineDialog(line);
+                    case Ellipse2D circle -> Dialogs.circleDialog(mainPanel, this, circle);
+                    case Rectangle2D rect -> Dialogs.rectangleDialog(mainPanel, this, rect);
+                    case Line2D line -> Dialogs.lineDialog(mainPanel, this, line);
                     case null -> JOptionPane.showMessageDialog(this, new JLabel("Select shape"));
                     default -> JOptionPane.showMessageDialog(this, new JLabel("unsupported shape"));
                 }
@@ -170,166 +183,39 @@ public class Frame extends JFrame {
         }
     }
 
-    private void circleDialog(Ellipse2D circle) {
-
-        JPanel dialog = new JPanel();
-        dialog.repaint();
-        JTextField centerX = new JTextField(5);
-        JTextField centerY = new JTextField(5);
-        JTextField radiusInput = new JTextField(5);
-
-        Shape currentShape;
-
-        Runnable draw = () -> {
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            for (Shape shape : mainPanel.getState().getCanvas().getShapes().getShapes()) {
-                if(shape == null) continue;
-                g2d.draw(shape);
+    private void chooseImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if(f.isDirectory()) return true;
+                String fileName = f.getName().toLowerCase();
+                return fileName.endsWith(".jpg") || fileName.endsWith(".ppm");
             }
-        };
 
-        dialog.setLayout(new BoxLayout(dialog, 3));
+            @Override
+            public String getDescription() {
+                return "*.ppm, *.jpg";
+            }
+        });
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            loadImage(fileChooser.getSelectedFile().getAbsolutePath());
+            /*
 
-        dialog.add(new JLabel("X coordinate of circle center:"));
-        dialog.add(centerX);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("Y coordinate of circle center:"));
-        dialog.add(centerY);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("Circle radius:"));
-        dialog.add(radiusInput);
 
-        centerX.setText(String.valueOf(circle.getCenterX()));
-        centerY.setText(String.valueOf(circle.getCenterY()));
-        radiusInput.setText(String.valueOf(circle.getHeight()/2));
-
-        int result = JOptionPane.showConfirmDialog(this, dialog, "Enter values:", JOptionPane.OK_CANCEL_OPTION);
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().remove(circle);
-            currentShape = new Ellipse2D.Double(Double.parseDouble(centerX.getText()) - Double.parseDouble(radiusInput.getText()),
-                                                Double.parseDouble(centerY.getText()) - Double.parseDouble(radiusInput.getText()),
-                                                Double.parseDouble(radiusInput.getText()) * 2, Double.parseDouble(radiusInput.getText()) * 2);
-
-            mainPanel.repaint();
-            SwingUtilities.invokeLater(draw);
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            g2d.draw(currentShape);
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().add(currentShape);
+            mainPanel.add(image); */
         }
-
-
     }
 
-    private void lineDialog(Line2D line) {
-        JPanel dialog = new JPanel();
-        dialog.repaint();
-        JTextField x1Field = new JTextField(5);
-        JTextField y1Field = new JTextField(5);
-        JTextField x2Field = new JTextField(5);
-        JTextField y2Field = new JTextField(5);
-
-        Shape currentShape;
-
-        Runnable draw = () -> {
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            for (Shape shape : mainPanel.getState().getCanvas().getShapes().getShapes()) {
-                if(shape == null) continue;
-                g2d.draw(shape);
-            }
-        };
-
-        dialog.setLayout(new BoxLayout(dialog, 1));
-
-        dialog.add(new JLabel("x1:"));
-        dialog.add(x1Field);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("y1:"));
-        dialog.add(y1Field);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("x2:"));
-        dialog.add(x2Field);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("y2:"));
-        dialog.add(y2Field);
-
-        x1Field.setText(String.valueOf(line.getX1()));
-        y1Field.setText(String.valueOf(line.getY1()));
-        x2Field.setText(String.valueOf(line.getX2()));
-        y2Field.setText(String.valueOf(line.getX2()));
-
-        int result = JOptionPane.showConfirmDialog(this, dialog, "Change values:", JOptionPane.OK_CANCEL_OPTION);
-
-        if(result == JOptionPane.OK_OPTION) {
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().remove(line);
-            currentShape = new Line2D.Double(Double.parseDouble(x1Field.getText()), Double.parseDouble(y1Field.getText()),
-                    Double.parseDouble(x2Field.getText()), Double.parseDouble(y2Field.getText()));
-            mainPanel.repaint();
-            SwingUtilities.invokeLater(draw);
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            g2d.draw(currentShape);
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().add(currentShape);
+    private void loadImage(String filePath) {
+        int pathLength = filePath.length();
+        String extension = filePath.toLowerCase().substring(pathLength-3);
+        if (extension.equals("jpg")) {
+            ImageIcon imageIcon = new ImageIcon(filePath);
+            Image image = imageIcon.getImage();
+            mainPanel.getState().getCanvas().flushShapes();
+            mainPanel.paintImage(mainPanel.getGraphics(), image);
         }
-
-    }
-
-    private void rectangleDialog(Rectangle2D rect) {
-        JPanel dialog = new JPanel();
-        dialog.repaint();
-        JTextField upperLeftX = new JTextField(5);
-        JTextField upperLeftY = new JTextField(5);
-        JTextField width = new JTextField(5);
-        JTextField height = new JTextField(5);
-
-        Shape currentShape;
-
-        dialog.setLayout(new BoxLayout(dialog, 3));
-
-        dialog.add(new JLabel("X coordinate of upper left corner:"));
-        dialog.add(upperLeftX);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("Y coordinate of upper left corner:"));
-        dialog.add(upperLeftY);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("Width:"));
-        dialog.add(width);
-        dialog.add(Box.createVerticalStrut(15));
-        dialog.add(new JLabel("Height:"));
-        dialog.add(height);
-
-        upperLeftX.setText(String.valueOf(rect.getX()));
-        upperLeftY.setText(String.valueOf(rect.getY()));
-        width.setText(String.valueOf(rect.getWidth()));
-        height.setText(String.valueOf(rect.getHeight()));
-
-
-        Runnable draw = () -> {
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            for (Shape shape : mainPanel.getState().getCanvas().getShapes().getShapes()) {
-                if(shape == null) continue;
-                g2d.draw(shape);
-            }
-        };
-
-        for (Shape shape : mainPanel.getState().getCanvas().getShapes().getShapes()) {
-            System.out.println(shape);
-        }
-
-        int result = JOptionPane.showConfirmDialog(this, dialog, "Enter values:", JOptionPane.OK_CANCEL_OPTION);
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().remove(rect);
-
-            currentShape = new Rectangle2D.Double(Double.parseDouble(upperLeftX.getText()), Double.parseDouble(upperLeftY.getText()),
-                    Double.parseDouble(width.getText()), Double.parseDouble(height.getText()));
-
-            mainPanel.repaint();
-            SwingUtilities.invokeLater(draw);
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            g2d.draw(currentShape);
-            this.mainPanel.getState().getCanvas().getShapes().getShapes().add(currentShape);
-        }
-
     }
 
 }

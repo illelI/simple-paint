@@ -39,7 +39,7 @@ public class DrawCircleState extends CanvasState{
 
         g2d.setColor(Color.BLACK);
         g2d.draw(circle);
-        getCanvas().getShapes().getShapes().add(circle);
+        getCanvas().getShapes().addShape(circle);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class DrawCircleState extends CanvasState{
             int radius = Integer.parseInt(radiusInput.getText());
             Ellipse2D circle = new Ellipse2D.Double(x - radius, y - radius, 2 * radius, 2 * radius);
             g2d.draw(circle);
-            getCanvas().getShapes().getShapes().add(circle);
+            getCanvas().getShapes().addShape(circle);
         }
 
     }

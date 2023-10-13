@@ -31,7 +31,7 @@ public class DrawFreeState extends CanvasState{
         g2d.setColor(Color.BLACK);
         g2d.fill(circle);
 
-        getCanvas().getShapes().getShapes().add(circle);
+        getCanvas().getShapes().addShape(circle);
     }
 
     @Override

@@ -34,11 +34,11 @@ public class SelectState extends CanvasState{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        for (Shape s : getCanvas().getShapes().getShapes()) {
+        for (Shape s : getCanvas().getShapesList()) {
             if(s == null) continue;
             if (s.contains(e.getPoint())) {
                 currentShape = s;
-                getCanvas().getShapes().getShapes().remove(s);
+                getCanvas().removeShape(s);
                 return;
             }
         }
@@ -52,7 +52,7 @@ public class SelectState extends CanvasState{
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        getCanvas().getShapes().getShapes().add(currentShape);
+        getCanvas().addShape(currentShape);
     }
 
     @Override
@@ -67,14 +67,6 @@ public class SelectState extends CanvasState{
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        Runnable draw = () -> {
-            Graphics2D g2d = (Graphics2D) mainPanel.getGraphics();
-            for (Shape shape : getCanvas().getShapes().getShapes()) {
-                if(shape == null) continue;
-                g2d.draw(shape);
-            }
-            g2d.draw(currentShape);
-        };
 
         if(currentShape != null) {
             try {
@@ -94,7 +86,6 @@ public class SelectState extends CanvasState{
                     }
                 }
                 mainPanel.repaint();
-                SwingUtilities.invokeLater(draw);
             } catch (Exception ex) {
                 //
             }

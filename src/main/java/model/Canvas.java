@@ -3,6 +3,7 @@ package model;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Canvas implements Serializable {
     private ShapesList shapes;
@@ -22,7 +23,18 @@ public class Canvas implements Serializable {
     public ShapesList getShapes() {
         return shapes;
     }
-
+    public List<Shape> getShapesList() {
+        return shapes.getShapes();
+    }
+    public boolean addShape(Shape s) {
+        return shapes.addShape(s);
+    }
+    public boolean removeShape(Shape s) {
+        return shapes.removeShape(s);
+    }
+    public void flushShapes() {
+        shapes.flushShapes();
+    }
     public void setShapes(ShapesList shapes) {
         this.shapes = shapes;
     }
