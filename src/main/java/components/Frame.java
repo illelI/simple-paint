@@ -16,12 +16,12 @@ import java.util.Locale;
 
 public class Frame extends JFrame {
 
-    MainPanel mainPanel;
+    private MainPanel mainPanel;
     public Frame(String title, int xSize, int ySize) {
         super(title);
-
         mainPanel = new MainPanel(this);
         mainPanel.setBackground(Color.white);
+        mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
 
         Container contentPane = getContentPane();
         contentPane.add(mainPanel);
@@ -30,6 +30,11 @@ public class Frame extends JFrame {
 
         createMenuBar();
         createToolbar();
+
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        contentPane.add(scrollPane);
     }
 
     private void createMenuBar() {
@@ -190,32 +195,38 @@ public class Frame extends JFrame {
             public boolean accept(File f) {
                 if(f.isDirectory()) return true;
                 String fileName = f.getName().toLowerCase();
-                return fileName.endsWith(".jpg") || fileName.endsWith(".ppm");
+                return fileName.endsWith(".jpg") || fileName.endsWith("*.jpeg") || fileName.endsWith(".ppm");
             }
 
             @Override
             public String getDescription() {
-                return "*.ppm, *.jpg";
+                return "*.ppm, *.jpg, *.jpeg";
             }
         });
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             loadImage(fileChooser.getSelectedFile().getAbsolutePath());
-            /*
-
-
-            mainPanel.add(image); */
         }
     }
 
     private void loadImage(String filePath) {
         int pathLength = filePath.length();
         String extension = filePath.toLowerCase().substring(pathLength-3);
-        if (extension.equals("jpg")) {
+        if (extension.equals("jpg") || extension.equals("jpeg")) {
             ImageIcon imageIcon = new ImageIcon(filePath);
             Image image = imageIcon.getImage();
             mainPanel.getState().getCanvas().flushShapes();
             mainPanel.paintImage(mainPanel.getGraphics(), image);
+        } else if (extension.equals("ppm")) {
+            PPMFileReader reader = new PPMFileReader(filePath, mainPanel, this);
+            reader.draw();
+
+        } else {
+            Dialogs.fileErrorDialog(this, "Unsupported file format");
         }
+    }
+
+    public MainPanel getMainPanel() {
+        return mainPanel;
     }
 
 }

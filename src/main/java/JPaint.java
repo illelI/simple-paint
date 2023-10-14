@@ -10,7 +10,7 @@ public class JPaint {
         int ySize = 600;
         Frame frame = new Frame(title, xSize, ySize);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
     }
 }

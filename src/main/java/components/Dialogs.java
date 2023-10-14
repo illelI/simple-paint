@@ -8,6 +8,8 @@ import java.awt.geom.Rectangle2D;
 
 public class Dialogs {
 
+    private Dialogs() {}
+
     public static void circleDialog(MainPanel mainPanel, Frame frame, Ellipse2D circle) {
 
         JPanel dialog = new JPanel();
@@ -163,6 +165,12 @@ public class Dialogs {
             mainPanel.getState().getCanvas().addShape(currentShape);
         }
 
+    }
+
+    public static void fileErrorDialog(Frame frame, String message) {
+        JPanel dialog = new JPanel();
+        dialog.add(new JLabel(message));
+        JOptionPane.showMessageDialog(frame, dialog);
     }
 
 }

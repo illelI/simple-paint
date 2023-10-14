@@ -5,3 +5,19 @@
 save.txt,2\e\2ed108884332e9f77a3c17dedfce478a14d6ca9b
 T
 $src/main/java/state/CanvasState.java,3\b\3bddcc3385d2c45c3eab1b116b395cd6b0764436
+O
+src/main/java/model/Canvas.java,4\0\4045edc4f145abb39f2040a54cb0a716274362a9
+X
+(src/main/java/state/DrawCircleState.java,b\e\be7dd0f81ebf5f8f4df61b1afd7f99ee97ff669a
+W
+'src/main/java/state/DrawFree2State.java,c\1\c1d4c274813e373b98607c0f097f19f6cb26ec9f
+V
+&src/main/java/state/DrawFreeState.java,6\f\6fe63f7362f4bc82548f3bf8c67482bac3a3203c
+V
+&src/main/java/state/DrawLineState.java,6\1\6147d0e8747e6920e4aead2f08748b1ccafca515
+T
+$src/main/java/state/SelectState.java,7\3\732a961811b5293b51b2461c3e1a9cd0d23580d4
+S
+#src/main/java/model/ShapesList.java,a\5\a5e53e34bdd89ca03b0aa571a188411154f3e60f
+[
++src/main/java/state/DrawRectangleState.java,6\6\66f44cf8e179192f2fd07e0be3f47a7d56aacf2f

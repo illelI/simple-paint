@@ -9,17 +9,26 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 
 public class MainPanel extends JPanel implements MouseListener, MouseMotionListener {
 
     private CanvasState state;
     private Frame holder;
+
+    private BufferedImage image;
+
     public MainPanel(Frame frame) {
         super();
         this.holder = frame;
         this.state = new SelectState(this, holder);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
+
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
     }
 
     public void changeState(CanvasState state) {
@@ -43,12 +52,22 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             if(s == null) continue;
             g2d.draw(s);
         }
+        if (image != null) {
+            g2d.drawImage(image, 0, 0, this);
+        }
     }
 
     public void paintImage(Graphics g, Image img) {
         this.setSize(img.getWidth(null), img.getHeight(null));
+        Graphics2D g2d = (Graphics2D) g;
+        super.paintComponents(g2d);
+        SwingUtilities.invokeLater(() -> g2d.drawImage(img, 0, 0, null));
+    }
+
+    public void prepareForPPM(Graphics g, int width, int height) {
+        this.setPreferredSize(new Dimension(width, height));
         super.paintComponents(g);
-        SwingUtilities.invokeLater(() -> g.drawImage(img, 0, 0, null));
+        revalidate();
     }
 
 
@@ -85,4 +104,5 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mouseMoved(MouseEvent e) {
     }
+
 }
