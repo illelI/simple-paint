@@ -3,7 +3,13 @@ package components;
 import model.ShapesList;
 import state.*;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -11,17 +17,23 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.io.*;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
 
 
 public class Frame extends JFrame {
 
     private MainPanel mainPanel;
+    private JLabel colorInfo;
+    JPanel statusPanel;
     public Frame(String title, int xSize, int ySize) {
         super(title);
         mainPanel = new MainPanel(this);
         mainPanel.setBackground(Color.white);
         mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
+
 
         Container contentPane = getContentPane();
         contentPane.add(mainPanel);
@@ -35,6 +47,12 @@ public class Frame extends JFrame {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         contentPane.add(scrollPane);
+
+        statusPanel = new JPanel();
+        colorInfo = new JLabel();
+        statusPanel.add(colorInfo);
+        statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        add(statusPanel, BorderLayout.SOUTH);
     }
 
     private void createMenuBar() {
@@ -91,6 +109,8 @@ public class Frame extends JFrame {
         });
         closeMenuItem.addActionListener(l -> System.exit(0));
 
+        exportItem.addActionListener(l -> exportImage());
+
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
@@ -110,6 +130,8 @@ public class Frame extends JFrame {
         JComboBox shapesBox = new JComboBox(new String[] {"Line", "Rectangle", "Circle", "Free", "Free (points)"});
         JButton drawFromTextField = new JButton("Draw from text field");
         JButton changeShape = new JButton("Change");
+        JButton zoomInButton = new JButton("+");
+        JButton zoomOutButton = new JButton("-");
 
 
         selectBtn.addActionListener( l -> {
@@ -165,6 +187,9 @@ public class Frame extends JFrame {
                 }
         });
 
+        zoomInButton.addActionListener( l -> mainPanel.zoomIn());
+        zoomOutButton.addActionListener(l -> mainPanel.zoomOut());
+
         selectBtn.setSelected(true);
 
         toolBar.add(selectBtn);
@@ -172,6 +197,8 @@ public class Frame extends JFrame {
         toolBar.add(shapesBox);
         toolBar.add(drawFromTextField);
         toolBar.add(changeShape);
+        toolBar.add(zoomInButton);
+        toolBar.add(zoomOutButton);
 
         toolBar.setFloatable(false);
 
@@ -225,8 +252,39 @@ public class Frame extends JFrame {
         }
     }
 
+    private void exportImage() {
+        if (mainPanel.getImage() == null) {
+            Dialogs.fileErrorDialog(this, "Firstly import a file");
+            return;
+        }
+        JFileChooser fileChooser = new JFileChooser();
+        if(fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                float ratio = Dialogs.compressionDialog(this);
+                    File file = new File(fileChooser.getSelectedFile().getAbsolutePath() + ".jpg");
+                    Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+                    ImageWriter writer = writers.next();
+                    ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new FileOutputStream(file));
+                    writer.setOutput(imageOutputStream);
+                    ImageWriteParam param = writer.getDefaultWriteParam();
+                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    param.setCompressionQuality(ratio);
+                    writer.write(null, new IIOImage(mainPanel.getImage(), null, null), param);
+                    imageOutputStream.close();
+                    writer.dispose();
+            } catch (Exception e) {
+                Dialogs.fileErrorDialog(this, "Error during saving a file");
+            }
+        }
+    }
+
     public MainPanel getMainPanel() {
         return mainPanel;
+    }
+
+    public void updateColor(Color c) {
+        colorInfo.setText("rgb(" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + ")");
+        statusPanel.repaint();
     }
 
 }

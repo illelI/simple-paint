@@ -3,8 +3,6 @@
 save.txt,2\e\2ed108884332e9f77a3c17dedfce478a14d6ca9b
 7
 pom.xml,4\4\442292b8a7efeabbe4cc176709b833b1792140ec
-T
-$src/main/java/state/CanvasState.java,3\b\3bddcc3385d2c45c3eab1b116b395cd6b0764436
 W
 'src/main/java/state/DrawFree2State.java,c\1\c1d4c274813e373b98607c0f097f19f6cb26ec9f
 S

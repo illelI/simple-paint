@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class MainPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -17,6 +18,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     private Frame holder;
 
     private BufferedImage image;
+    private double zoom = 1.0;
+    private int width;
+    private int height;
 
     public MainPanel(Frame frame) {
         super();
@@ -25,10 +29,17 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
+        width = getWidth();
+        height = getHeight();
+
     }
 
     public void setImage(BufferedImage image) {
         this.image = image;
+    }
+
+    public BufferedImage getImage() {
+        return image;
     }
 
     public void changeState(CanvasState state) {
@@ -44,6 +55,24 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         state.load(shapesList);
     }
 
+    public void zoomIn() {
+        zoom += 0.25;
+        width *= zoom;
+        height *= zoom;
+        this.setSize(new Dimension(width, height));
+        repaint();
+    }
+
+    public void zoomOut() {
+        if(zoom > 0.25) {
+            width /= zoom;
+            height /= zoom;
+            this.setSize(new Dimension(width, height));
+            zoom -= 0.25;
+            repaint();
+        }
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
@@ -53,21 +82,37 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             g2d.draw(s);
         }
         if (image != null) {
-            g2d.drawImage(image, 0, 0, this);
+            AffineTransform at = new AffineTransform();
+            at.scale(zoom, zoom);
+            g2d.drawImage(image, at, this);
+            revalidate();
+            setSize(width, height);
         }
     }
 
     public void paintImage(Graphics g, Image img) {
-        this.setSize(img.getWidth(null), img.getHeight(null));
+        zoom = 1.0;
         Graphics2D g2d = (Graphics2D) g;
+        BufferedImage tmpImg = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        Graphics2D imgGraphics = tmpImg.createGraphics();
+        imgGraphics.drawImage(img,0,0,null);
+        imgGraphics.dispose();
+        this.image = tmpImg;
         super.paintComponents(g2d);
-        SwingUtilities.invokeLater(() -> g2d.drawImage(img, 0, 0, null));
+        revalidate();
+        this.height = image.getHeight();
+        this.width = image.getWidth();
+        this.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
+        //SwingUtilities.invokeLater(() -> g2d.drawImage(img, 0, 0, null));
     }
 
     public void prepareForPPM(Graphics g, int width, int height) {
-        this.setPreferredSize(new Dimension(width, height));
+        zoom = 1.0;
         super.paintComponents(g);
         revalidate();
+        this.setPreferredSize(new Dimension(width, height));
+        this.height = height;
+        this.width = width;
     }
 
 
@@ -103,6 +148,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        int x = MouseInfo.getPointerInfo().getLocation().x;
+        int y = MouseInfo.getPointerInfo().getLocation().y;
+
+        try {
+            Robot robot = new Robot();
+            holder.updateColor(robot.getPixelColor(x, y));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
 
 }

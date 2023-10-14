@@ -173,4 +173,21 @@ public class Dialogs {
         JOptionPane.showMessageDialog(frame, dialog);
     }
 
+    public static float compressionDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        JTextField ratioField = new JTextField(5);
+
+        dialog.setLayout(new BoxLayout(dialog, 2));
+
+        dialog.add(new JLabel("Compression ratio"));
+        ratioField.setText("1.0");
+        dialog.add(ratioField);
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Enter value: ", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            return Float.parseFloat(ratioField.getText());
+        }
+        return 0;
+    }
+
+
 }
