@@ -27,13 +27,16 @@ public class Frame extends JFrame {
 
     private MainPanel mainPanel;
     private JLabel colorInfo;
-    JPanel statusPanel;
+    private ColorFrame colorFrame;
+    private JPanel statusPanel;
     public Frame(String title, int xSize, int ySize) {
         super(title);
         mainPanel = new MainPanel(this);
         mainPanel.setBackground(Color.white);
         mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
 
+        colorFrame = new ColorFrame();
+        colorFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         Container contentPane = getContentPane();
         contentPane.add(mainPanel);
@@ -133,6 +136,7 @@ public class Frame extends JFrame {
         JButton zoomInButton = new JButton("+");
         JButton zoomOutButton = new JButton("-");
 
+        JButton colorsButton = new JButton("colors");
 
         selectBtn.addActionListener( l -> {
             selectBtn.setEnabled(false);
@@ -190,6 +194,8 @@ public class Frame extends JFrame {
         zoomInButton.addActionListener( l -> mainPanel.zoomIn());
         zoomOutButton.addActionListener(l -> mainPanel.zoomOut());
 
+        colorsButton.addActionListener(l -> openColorMenu());
+
         selectBtn.setSelected(true);
 
         toolBar.add(selectBtn);
@@ -199,6 +205,7 @@ public class Frame extends JFrame {
         toolBar.add(changeShape);
         toolBar.add(zoomInButton);
         toolBar.add(zoomOutButton);
+        toolBar.add(colorsButton);
 
         toolBar.setFloatable(false);
 
@@ -287,4 +294,7 @@ public class Frame extends JFrame {
         statusPanel.repaint();
     }
 
+    private void openColorMenu() {
+        colorFrame.setVisible(true);
+    }
 }

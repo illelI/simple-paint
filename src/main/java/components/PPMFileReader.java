@@ -58,7 +58,7 @@ public class PPMFileReader {
         String line;
         int r = -1;
         int g = -1;
-        int b = -1;
+        int b;
         double tmpDouble;
         List<String> otherValues = getImageParams();
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics();
@@ -130,11 +130,11 @@ public class PPMFileReader {
         double tmpDouble;
         int r = -1;
         int g = -1;
-        int b = -1;
+        int b;
         getImageParams();
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics();
         try {
-            DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(path), 1024 * 1024));
+            DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(path), 1024 * 1024 * 2));
             for(int i = 0; i < lineNumber + 1; i++) inputStream.readLine();
             int byteFromFile = inputStream.read();
             while (byteFromFile != -1) {
