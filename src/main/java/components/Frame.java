@@ -36,7 +36,7 @@ public class Frame extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
 
         colorFrame = new ColorFrame();
-        colorFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        colorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         Container contentPane = getContentPane();
         contentPane.add(mainPanel);
