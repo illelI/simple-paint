@@ -5,6 +5,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -29,24 +32,26 @@ public class ColorFrame extends JFrame {
 
     public ColorFrame() {
         super("Change color");
-        colorsPanel = new ColorsPanel(300, 300);
+        colorsPanel = new ColorsPanel(300, 300, this);
         labelsPanel = new JPanel();
-        chosenColor = new Color(0,0,0);
-        colorSlider = new ColorsPanel(10, 200);
+        chosenColor = new Color(255,0,0);
+        colorSlider = new ColorsPanel(10, 300, this);
         JPanel colorChoosePanel = new JPanel();
         colorChoosePanel.setSize(new Dimension(350, 350));
         colorChoosePanel.setPreferredSize(new Dimension(350, 300));
+        colorChoosePanel.setMaximumSize(new Dimension(350, 350));
 
         colorChoosePanel.setLayout(new BoxLayout(colorChoosePanel, BoxLayout.X_AXIS));
-
         JButton okButton = new JButton("OK");
         JButton cancelButton = new JButton("Cancel");
         colorLabel = new JLabel(getIconFromColor());
 
+
+
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
 
-        setSize(new Dimension(380, 400));
+        setSize(new Dimension(380, 500));
 
         DocumentListener changeRGBListener = new DocumentListener() {
             @Override
@@ -111,6 +116,73 @@ public class ColorFrame extends JFrame {
         JLabel blackLabel = new JLabel("Black:");
         blackField = new JTextField(3);
 
+        colorsPanel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = MouseInfo.getPointerInfo().getLocation().x;
+                int y = MouseInfo.getPointerInfo().getLocation().y;
+                try {
+                    Robot robot = new Robot();
+                    colorsPanel.getHolder().setColor(robot.getPixelColor(x, y));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+        colorSlider.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = MouseInfo.getPointerInfo().getLocation().x;
+                int y = MouseInfo.getPointerInfo().getLocation().y;
+                try {
+                    Robot robot = new Robot();
+                    colorsPanel.getHolder().setColorFromSlider(robot.getPixelColor(x, y));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
         convertRGBtoCMYK();
 
         redField.getDocument().addDocumentListener(changeRGBListener);
@@ -142,6 +214,7 @@ public class ColorFrame extends JFrame {
         labelsPanel.add(okButton);
         labelsPanel.add(cancelButton);
         setColorsPanel();
+        setColorSlider();
         colorChoosePanel.add(colorsPanel);
         colorChoosePanel.add(colorSlider);
         add(colorChoosePanel);
@@ -209,14 +282,20 @@ public class ColorFrame extends JFrame {
     }
 
     private void setColorSlider() {
-        BufferedImage colorsImage = new BufferedImage(20, 127, BufferedImage.TYPE_INT_RGB);
+        BufferedImage colorsImage = new BufferedImage(20, 255 * 2, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = colorsImage.createGraphics();
 
-        for (int i = 0; i < 127; i++) {
+        float r = chosenColor.getRed();
+        float g = chosenColor.getGreen();
+        float b = chosenColor.getBlue();
+
+        for (int i = 255 * 2; i > -1; i--) {
             for (int j = 0; j < 20; j++) {
-                //zrobie później
+                graphics2D.setColor(new Color((int)scaleColorOnSlider(r, i), (int)scaleColorOnSlider(g, i), (int)scaleColorOnSlider(b, i)));
+                graphics2D.drawRect(j, 255 * 2 - i, 1, 1);
             }
         }
+        colorSlider.setImage(colorsImage);
 
     }
 
@@ -282,13 +361,16 @@ public class ColorFrame extends JFrame {
         colorsPanel.setImage(colorsImage);
     }
 
-    private class ColorsPanel extends JPanel {
+    private class ColorsPanel extends JPanel{
         private BufferedImage image;
+        private ColorFrame holder;
 
-        ColorsPanel(int width, int height) {
+        ColorsPanel(int width, int height, ColorFrame holder) {
             super();
+            this.holder = holder;
             setSize(new Dimension(width, height));
             setPreferredSize(new Dimension(width, height));
+            //setMaximumSize(new Dimension(width, height));
         }
         void setImage(BufferedImage img) {
             image = img;
@@ -301,10 +383,28 @@ public class ColorFrame extends JFrame {
             AffineTransform at = new AffineTransform();
             at.scale(0.5, 1);
             if(image != null) {
-                at.scale((double) getWidth() / image.getWidth(), 1.5);//(double)getHeight() / image.getHeight());
+                at.scale((double) getWidth() / image.getWidth(), (double)getHeight() / image.getHeight());;//(double)getHeight() / image.getHeight());
                 g2d.drawImage(image, at, null);
             }
         }
+
+        protected ColorFrame getHolder() {
+            return holder;
+        }
+
+        public void mouseClicked(MouseEvent e) {
+            int x = MouseInfo.getPointerInfo().getLocation().x;
+            int y = MouseInfo.getPointerInfo().getLocation().y;
+            System.out.println("XD");
+
+            try {
+                Robot robot = new Robot();
+                holder.setColor(robot.getPixelColor(x, y));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
     }
 
     private float scaleColor(float color, int i) {
@@ -315,6 +415,36 @@ public class ColorFrame extends JFrame {
             color = color + i*(127 - color)/127;
         }
         return color;
+    }
+
+    private float scaleColorOnSlider(float color, int i) {
+        if (i < 255)
+            color = color - (255 - i)*(color)/ 255;
+        else color = color + (i - 255)*(255 - color)/ 255;
+        return color;
+    }
+
+    private void setColor(Color c) {
+        this.chosenColor = c;
+        setColorSlider();
+        colorLabel.setIcon(getIconFromColor());
+        colorLabel.repaint();
+        isDuringChange = true;
+        redField.setText(String.valueOf(chosenColor.getRed()));
+        blueField.setText(String.valueOf(chosenColor.getBlue()));
+        isDuringChange = false;
+        greenField.setText(String.valueOf(chosenColor.getGreen()));
+    }
+
+    private void setColorFromSlider(Color c) {
+        this.chosenColor = c;
+        colorLabel.setIcon(getIconFromColor());
+        colorLabel.repaint();
+        isDuringChange = true;
+        redField.setText(String.valueOf(chosenColor.getRed()));
+        blueField.setText(String.valueOf(chosenColor.getBlue()));
+        isDuringChange = false;
+        greenField.setText(String.valueOf(chosenColor.getGreen()));
     }
 
 }
