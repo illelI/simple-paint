@@ -45,5 +45,9 @@ w
 G.idea/sonarlint/issuestore/2/e/2ed108884332e9f77a3c17dedfce478a14d6ca9b,4\e\4e05e88ce18e61a3a2666e92f381e305dd451f59
 T
 $src/main/java/state/CanvasState.java,3\b\3bddcc3385d2c45c3eab1b116b395cd6b0764436
-U
-%src/main/java/components/Dialogs.java,2\9\2913c178a6db59acc23ea56872a5d54257e3bee7
+[
++src/main/java/components/PPMFileReader.java,6\c\6c4a56806d5463af93159a5e6c9fba2b92be640a
+I
+src/main/java/JPaint.java,8\4\84ede5aadd13111281dcd1cb047738ebaa4f60a7
+X
+(src/main/java/components/ColorFrame.java,1\f\1fc67bc9e9b24c589d85ddcfbd5faffc6e983b27

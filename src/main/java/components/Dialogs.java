@@ -189,5 +189,154 @@ public class Dialogs {
         return 0;
     }
 
+    public static void operationsDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JButton addButton = new JButton("Add");
+        JButton subtractButton = new JButton("Subtract");
+        JButton multiplyButton = new JButton("Multiply");
+        JButton divideButton = new JButton("Divide");
+        JButton changeBrightnessButton = new JButton("Change brightness");
+        JButton greyScaleButton = new JButton("Greyscale");
+
+        addButton.addActionListener(l -> Dialogs.addOperationDialog(frame));
+        subtractButton.addActionListener(l -> Dialogs.subtractOperationDialog(frame));
+        multiplyButton.addActionListener(l -> Dialogs.multiplyOperationDialog(frame));
+        divideButton.addActionListener(l -> Dialogs.divideOperationDialog(frame));
+        changeBrightnessButton.addActionListener(l -> brightnessOperationDialog(frame));
+        greyScaleButton.addActionListener(l -> frame.getMainPanel().greyscaleOperation());
+
+        dialog.add(addButton);
+        dialog.add(subtractButton);
+        dialog.add(multiplyButton);
+        dialog.add(divideButton);
+        dialog.add(changeBrightnessButton);
+        dialog.add(greyScaleButton);
+
+        JOptionPane.showMessageDialog(frame, dialog, "", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void filtersDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JButton averagingFilterButton = new JButton("Averaging");
+        JButton medianFilterButton = new JButton("Median");
+        JButton sobelFilterButton = new JButton("Sobel");
+        JButton highPassFilterButton = new JButton("High-pass");
+        JButton gaussFilterButton = new JButton("Gauss");
+
+        averagingFilterButton.addActionListener(l -> frame.getMainPanel().applyAveragingFilter(3));
+        medianFilterButton.addActionListener(l -> frame.getMainPanel().applyMedianFilter(3));
+        sobelFilterButton.addActionListener(l -> frame.getMainPanel().applySobelFilter());
+        highPassFilterButton.addActionListener(l -> frame.getMainPanel().applyHighPassSharpenFilter());
+        gaussFilterButton.addActionListener(l -> frame.getMainPanel().applyGaussianBlur(5));
+
+        dialog.add(averagingFilterButton);
+        dialog.add(medianFilterButton);
+        dialog.add(sobelFilterButton);
+        dialog.add(highPassFilterButton);
+        dialog.add(gaussFilterButton);
+
+        JOptionPane.showMessageDialog(frame, dialog, "", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void addOperationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField redTextField = new JTextField();
+        JTextField greenTextField = new JTextField();
+        JTextField blueTextField = new JTextField();
+
+        dialog.add(new JLabel("Red: "));
+        dialog.add(redTextField);
+        dialog.add(new JLabel("Green: "));
+        dialog.add(greenTextField);
+        dialog.add(new JLabel("Blue: "));
+        dialog.add(blueTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Add", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().addOperation(new Color(Integer.parseInt(redTextField.getText()), Integer.parseInt(greenTextField.getText()), Integer.parseInt(blueTextField.getText())));
+        }
+    }
+
+    private static void subtractOperationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField redTextField = new JTextField();
+        JTextField greenTextField = new JTextField();
+        JTextField blueTextField = new JTextField();
+
+        dialog.add(new JLabel("Red: "));
+        dialog.add(redTextField);
+        dialog.add(new JLabel("Green: "));
+        dialog.add(greenTextField);
+        dialog.add(new JLabel("Blue: "));
+        dialog.add(blueTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Subtract", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().subtractOperation(new Color(Integer.parseInt(redTextField.getText()), Integer.parseInt(greenTextField.getText()), Integer.parseInt(blueTextField.getText())));
+        }
+    }
+    private static void multiplyOperationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField redTextField = new JTextField();
+        JTextField greenTextField = new JTextField();
+        JTextField blueTextField = new JTextField();
+
+        dialog.add(new JLabel("Red: "));
+        dialog.add(redTextField);
+        dialog.add(new JLabel("Green: "));
+        dialog.add(greenTextField);
+        dialog.add(new JLabel("Blue: "));
+        dialog.add(blueTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Subtract", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().multiplyOperation(new Color(Integer.parseInt(redTextField.getText()), Integer.parseInt(greenTextField.getText()), Integer.parseInt(blueTextField.getText())));
+        }
+    }
+    private static void divideOperationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField redTextField = new JTextField();
+        JTextField greenTextField = new JTextField();
+        JTextField blueTextField = new JTextField();
+
+        dialog.add(new JLabel("Red: "));
+        dialog.add(redTextField);
+        dialog.add(new JLabel("Green: "));
+        dialog.add(greenTextField);
+        dialog.add(new JLabel("Blue: "));
+        dialog.add(blueTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Subtract", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().divideOperation(new Color(Integer.parseInt(redTextField.getText()), Integer.parseInt(greenTextField.getText()), Integer.parseInt(blueTextField.getText())));
+        }
+    }
+    private static void brightnessOperationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField brightnessTextField = new JTextField();
+
+        dialog.add(new JLabel("Brightness: "));
+        dialog.add(brightnessTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "Subtract", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().brightnessOperation(Float.parseFloat(brightnessTextField.getText()));
+        }
+    }
+
 
 }

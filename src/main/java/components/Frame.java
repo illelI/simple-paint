@@ -15,12 +15,8 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Observable;
-import java.util.Observer;
 
 
 public class Frame extends JFrame {
@@ -135,6 +131,8 @@ public class Frame extends JFrame {
         JButton changeShape = new JButton("Change");
         JButton zoomInButton = new JButton("+");
         JButton zoomOutButton = new JButton("-");
+        JButton operationsButton = new JButton("Operations");
+        JButton filters = new JButton("Filters");
 
         JButton colorsButton = new JButton("colors");
 
@@ -196,6 +194,10 @@ public class Frame extends JFrame {
 
         colorsButton.addActionListener(l -> openColorMenu());
 
+        operationsButton.addActionListener(l -> Dialogs.operationsDialog(this));
+
+        filters.addActionListener(l -> Dialogs.filtersDialog(this));
+
         selectBtn.setSelected(true);
 
         toolBar.add(selectBtn);
@@ -206,7 +208,8 @@ public class Frame extends JFrame {
         toolBar.add(zoomInButton);
         toolBar.add(zoomOutButton);
         toolBar.add(colorsButton);
-
+        toolBar.add(operationsButton);
+        toolBar.add(filters);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);
