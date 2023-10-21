@@ -200,6 +200,9 @@ public class Frame extends JFrame {
 
         selectBtn.setSelected(true);
 
+        JButton histogram = new JButton("Histogram");
+        histogram.addActionListener(l -> Dialogs.histogramDialog(this));
+
         toolBar.add(selectBtn);
         toolBar.add(paintBtn);
         toolBar.add(shapesBox);
@@ -210,6 +213,7 @@ public class Frame extends JFrame {
         toolBar.add(colorsButton);
         toolBar.add(operationsButton);
         toolBar.add(filters);
+        toolBar.add(histogram);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);

@@ -11,9 +11,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 public class MainPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -449,6 +446,82 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
 
         this.image = blurredImage;
+        repaint();
+    }
+
+    public void stretchHistogram() {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        int minIntensity = 0;
+        int maxIntensity = 255;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int red = (rgb >> 16) & 0xFF;
+                int green = (rgb >> 8) & 0xFF;
+                int blue = rgb & 0xFF;
+                int gray = (red + green + blue) / 3;
+
+                int newGray = (int) ((gray - minIntensity) * (maxIntensity - minIntensity) / 255.0);
+
+                newGray = Math.min(Math.max(newGray, minIntensity), maxIntensity);
+
+                int newRGB = (newGray << 16) | (newGray << 8) | newGray;
+                outputImage.setRGB(x, y, newRGB);
+            }
+        }
+
+        this.image = outputImage;
+        repaint();
+    }
+
+    public void equalizeHistogram() {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        int[] histogram = new int[256];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int red = (rgb >> 16) & 0xFF;
+                int green = (rgb >> 8) & 0xFF;
+                int blue = rgb & 0xFF;
+                int gray = (red + green + blue) / 3;
+
+                histogram[gray]++;
+            }
+        }
+
+        int[] cdf = new int[256];
+        cdf[0] = histogram[0];
+        for (int i = 1; i < 256; i++) {
+            cdf[i] = cdf[i - 1] + histogram[i];
+        }
+
+        int pixels = width * height;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int red = (rgb >> 16) & 0xFF;
+                int green = (rgb >> 8) & 0xFF;
+                int blue = rgb & 0xFF;
+                int gray = (red + green + blue) / 3;
+
+                int newGray = (int) (255.0 * (cdf[gray] - cdf[0]) / (pixels - 1));
+
+                int newRGB = (newGray << 16) | (newGray << 8) | newGray;
+                outputImage.setRGB(x, y, newRGB);
+            }
+        }
+
+        this.image = outputImage;
         repaint();
     }
 

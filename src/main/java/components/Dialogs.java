@@ -338,5 +338,22 @@ public class Dialogs {
         }
     }
 
+    public static void histogramDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JButton normalizationButton = new JButton("Normalization");
+        JButton equalizationButton = new JButton("Equalization");
+
+        normalizationButton.addActionListener(l -> frame.getMainPanel().stretchHistogram());
+        equalizationButton.addActionListener(l -> frame.getMainPanel().equalizeHistogram());
+
+        dialog.add(normalizationButton);
+        dialog.add(equalizationButton);
+
+        JOptionPane.showMessageDialog(frame, dialog, "", JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
 
 }
