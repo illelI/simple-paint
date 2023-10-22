@@ -525,6 +525,120 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         repaint();
     }
 
+    public void binarizationUserDefinedThreshold(int threshold) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int gray = getGrayValue(rgb);
+                int binaryValue = (gray >= threshold) ? 0xFFFFFFFF : 0xFF000000;
+                binaryImage.setRGB(x, y, binaryValue);
+            }
+        }
+
+        this.image = binaryImage;
+        repaint();
+
+    }
+
+    public void percentBlackSelection(int percentBlack) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        int totalPixels = width * height;
+        int threshold = 255 * percentBlack / 100;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int gray = getGrayValue(rgb);
+                int binaryValue = (gray >= threshold) ? 0xFFFFFFFF : 0xFF000000;
+                binaryImage.setRGB(x, y, binaryValue);
+            }
+        }
+
+        this.image = binaryImage;
+        repaint();
+    }
+
+    public void meanIterativeSelection(int iterations) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        int totalPixels = width * height;
+        int threshold = calculateInitialThreshold(image);
+
+        for (int i = 0; i < iterations; i++) {
+            int sumBelow = 0;
+            int countBelow = 0;
+            int sumAbove = 0;
+            int countAbove = 0;
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int rgb = image.getRGB(x, y);
+                    int gray = getGrayValue(rgb);
+
+                    if (gray < threshold) {
+                        sumBelow += gray;
+                        countBelow++;
+                    } else {
+                        sumAbove += gray;
+                        countAbove++;
+                    }
+                }
+            }
+
+            int newThreshold = (sumBelow / countBelow + sumAbove / countAbove) / 2;
+            if (newThreshold == threshold) {
+                break;
+            }
+
+            threshold = newThreshold;
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                int gray = getGrayValue(rgb);
+                int binaryValue = (gray >= threshold) ? 0xFFFFFFFF : 0xFF000000;
+                binaryImage.setRGB(x, y, binaryValue);
+            }
+        }
+
+        this.image = binaryImage;
+        repaint();
+
+    }
+
+    private int calculateInitialThreshold(BufferedImage inputImage) {
+        int width = inputImage.getWidth();
+        int height = inputImage.getHeight();
+        long totalGray = 0;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = inputImage.getRGB(x, y);
+                int gray = getGrayValue(rgb);
+                totalGray += gray;
+            }
+        }
+
+        return (int) (totalGray / (width * height));
+    }
+
+    private int getGrayValue(int rgb) {
+        int red = (rgb >> 16) & 0xFF;
+        int green = (rgb >> 8) & 0xFF;
+        int blue = rgb & 0xFF;
+        return (int) (0.299 * red + 0.587 * green + 0.114 * blue);
+    }
+
 
 
     @Override

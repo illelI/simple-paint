@@ -202,6 +202,9 @@ public class Frame extends JFrame {
 
         JButton histogram = new JButton("Histogram");
         histogram.addActionListener(l -> Dialogs.histogramDialog(this));
+        
+        JButton binarization = new JButton("Binarization");
+        binarization.addActionListener(l -> Dialogs.binarizationDialog(this));
 
         toolBar.add(selectBtn);
         toolBar.add(paintBtn);
@@ -214,6 +217,7 @@ public class Frame extends JFrame {
         toolBar.add(operationsButton);
         toolBar.add(filters);
         toolBar.add(histogram);
+        toolBar.add(binarization);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);

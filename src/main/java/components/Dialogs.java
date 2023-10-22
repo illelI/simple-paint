@@ -354,6 +354,68 @@ public class Dialogs {
         JOptionPane.showMessageDialog(frame, dialog, "", JOptionPane.INFORMATION_MESSAGE);
 
     }
+    public static void binarizationDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JButton userThresholdButton = new JButton("User defined threshold");
+        JButton percentBlackSelectionButton = new JButton("Percent black selection");
+        JButton meanIterativeSelection = new JButton("Mean iterative selection");
+
+        userThresholdButton.addActionListener(l -> Dialogs.userThresholdDialog(frame));
+        percentBlackSelectionButton.addActionListener(l -> Dialogs.percentBlackSelectionDialog(frame));
+        meanIterativeSelection.addActionListener(l -> Dialogs.meanIterativeSelectionDialog(frame));
+
+        dialog.add(userThresholdButton);
+        dialog.add(percentBlackSelectionButton);
+        dialog.add(meanIterativeSelection);
+
+        JOptionPane.showMessageDialog(frame, dialog, "", JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
+    private static void userThresholdDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField thresholdTextField = new JTextField();
+
+        dialog.add(new JLabel("Threshold: "));
+        dialog.add(thresholdTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().binarizationUserDefinedThreshold(Integer.parseInt(thresholdTextField.getText()));
+        }
+    }
+    private static void percentBlackSelectionDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField thresholdTextField = new JTextField();
+
+        dialog.add(new JLabel("Threshold: "));
+        dialog.add(thresholdTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().percentBlackSelection(Integer.parseInt(thresholdTextField.getText()));
+        }
+    }
+    private static void meanIterativeSelectionDialog(Frame frame) {
+        JPanel dialog = new JPanel();
+        dialog.setLayout(new BoxLayout(dialog, BoxLayout.Y_AXIS));
+
+        JTextField thresholdTextField = new JTextField();
+
+        dialog.add(new JLabel("Iterations: "));
+        dialog.add(thresholdTextField);
+
+        int result = JOptionPane.showConfirmDialog(frame, dialog, "", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            frame.getMainPanel().meanIterativeSelection(Integer.parseInt(thresholdTextField.getText()));
+        }
+    }
 
 
 }
