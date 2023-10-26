@@ -3,14 +3,14 @@ package state;
 import components.Frame;
 import components.MainPanel;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RectangularShape;
+import java.util.ArrayList;
 
 public class SelectState extends CanvasState{
+
+    Point mousePressedPoint;
 
     private Shape currentShape;
 
@@ -24,21 +24,31 @@ public class SelectState extends CanvasState{
 
     @Override
     public void draw() {
-
-    }
-
-    @Override
-    public void showDrawingDialog() {
+        points = new ArrayList<>();
+        bezierPoints(200);
+        getCanvas().flushShapes();
+        getCanvas().flushControlPoints();
+        for (BezierPoint bp : controlPoints) {
+            getCanvas().addControlPoint(new Rectangle2D.Double(bp.getX() - 2, bp.getY() - 2, 4, 4));
+        }
+        for (int i = 1; i < points.size(); i++) {
+            makeCurve(points.get(i - 1), points.get(i));
+        }
+        mainPanel.repaint();
 
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        for (Shape s : getCanvas().getShapesList()) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        mousePressedPoint = new Point(e.getX(), e.getY());
+        for (Shape s : getCanvas().getControlPoints()) {
             if(s == null) continue;
             if (s.contains(e.getPoint())) {
                 currentShape = s;
-                getCanvas().removeShape(s);
                 return;
             }
         }
@@ -46,13 +56,9 @@ public class SelectState extends CanvasState{
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        mousePressedPoint = new Point(e.getX(), e.getY());
-    }
-
-    @Override
     public void mouseReleased(MouseEvent e) {
-        getCanvas().addShape(currentShape);
+        getCanvas().addControlPoint(new Rectangle2D.Double(e.getX() - 2, e.getY() - 2, 4, 4));
+        repaint();
     }
 
     @Override
@@ -70,20 +76,21 @@ public class SelectState extends CanvasState{
 
         if(currentShape != null) {
             try {
-                int x1 = mousePressedPoint.getX();
-                int x2 = e.getX();
-                int y1 = mousePressedPoint.getY();
-                int y2 = e.getY();
-                if (currentShape instanceof Rectangle2D || currentShape instanceof Ellipse2D) {
-                    if (x1 < x2 && y1 > y2) {
-                        ((RectangularShape) currentShape).setFrame(x1, y2, ((RectangularShape) currentShape).getWidth(), ((RectangularShape) currentShape).getHeight());
-                    } else if (x1 < x2 && y1 < y2) {
-                        ((RectangularShape) currentShape).setFrame(x1, y1, ((RectangularShape) currentShape).getWidth(), ((RectangularShape) currentShape).getHeight());
-                    } else if (x1 > x2 && y1 > y2) {
-                        ((RectangularShape) currentShape).setFrame(x2, y2, ((RectangularShape) currentShape).getWidth(), ((RectangularShape) currentShape).getHeight());
-                    } else {
-                        ((RectangularShape) currentShape).setFrame(x2, y1, ((RectangularShape) currentShape).getWidth(), ((RectangularShape) currentShape).getHeight());
+                points = new ArrayList<>();
+                Rectangle2D rect = new Rectangle2D.Double(e.getX() - 2, e.getY() - 2, 4, 4);
+                bezierPoints(200);
+                getCanvas().flushShapes();
+                getCanvas().flushControlPoints();
+                for (BezierPoint bp : controlPoints) {
+                    if (rect.contains(bp.getX(), bp.getY(), 1, 1)) {
+                        getCanvas().addControlPoint(rect);
+                        continue;
                     }
+                    getCanvas().addControlPoint(new Rectangle2D.Double(bp.getX() - 2, bp.getY() - 2, 4, 4));
+                }
+                controlPoints = convertShapeToBezierPoint(getCanvas().getControlPoints());
+                for (int i = 1; i < points.size(); i++) {
+                    makeCurve(points.get(i-1), points.get(i));
                 }
                 mainPanel.repaint();
             } catch (Exception ex) {
