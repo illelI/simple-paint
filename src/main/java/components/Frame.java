@@ -3,22 +3,10 @@ package components;
 import model.ShapesList;
 import state.*;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 public class Frame extends JFrame {
@@ -54,30 +42,25 @@ public class Frame extends JFrame {
 
     private void createToolbar() {
         JToolBar toolBar = new JToolBar();
-        JToggleButton selectBtn = new JToggleButton("Select");
+        JToggleButton selectBtn = new JToggleButton("Move");
         JToggleButton paintBtn = new JToggleButton("Paint");
 
         selectBtn.addActionListener( l -> {
             selectBtn.setEnabled(false);
             paintBtn.setSelected(false);
             paintBtn.setEnabled(true);
-            mainPanel.changeState(new SelectState(mainPanel, this));
+            mainPanel.changeState(new MoveState(mainPanel, this));
         });
 
         paintBtn.addActionListener(l -> {
             selectBtn.setEnabled(true);
             selectBtn.setSelected(false);
             paintBtn.setEnabled(false);
-            mainPanel.changeState(new DrawBezierState(mainPanel, this));
+            mainPanel.changeState(new DrawState(mainPanel, this));
         });
 
         toolBar.add(selectBtn);
         toolBar.add(paintBtn);
-        JTextField pointCount = new JTextField();
-        toolBar.add(new JLabel("How many points: "));
-        toolBar.add(pointCount);
-        JButton ok = new JButton("OK");
-        ok.addActionListener(l -> (mainPanel.getState()).setHowMany(Integer.parseInt(pointCount.getText())));
         JButton add = new JButton("Add");
         add.addActionListener(l -> {
             JPanel panel = new JPanel();
@@ -91,39 +74,88 @@ public class Frame extends JFrame {
             int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
                 mainPanel.getState().addPoint(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()));
-
             }
         });
-        toolBar.add(ok);
         toolBar.add(add);
-        JButton change = new JButton("change");
-        change.addActionListener(l -> {
+        JButton move = new JButton("move from txt");
+        move.addActionListener(l -> {
             JPanel panel = new JPanel();
             panel.repaint();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            List<JTextField> textFieldList = new ArrayList<>();
-            List<CanvasState.BezierPoint> bps = mainPanel.getState().getControlPoints();
-            for (int i = 0; i < mainPanel.getState().getHowMany(); i++) {
-                textFieldList.add(new JTextField(3));
-                textFieldList.add(new JTextField(3));
-                textFieldList.get(i * 2).setText(String.valueOf((int)bps.get(i).getX()));
-                textFieldList.get(i * 2 + 1).setText(String.valueOf((int)bps.get(i).getY()));
-                panel.add(new JLabel("x" + i + ":"));
-                panel.add(textFieldList.get(i * 2));
-                panel.add(new JLabel("y" + i + ":"));
-                panel.add(textFieldList.get(i * 2 + 1));
-
-            }
+            JTextField xTxt = new JTextField(3);
+            JTextField yTxt = new JTextField(3);
+            panel.add(new JLabel("x:"));
+            panel.add(xTxt);
+            panel.add(new JLabel("y:"));
+            panel.add(yTxt);
             int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
-                List<Integer> values = new ArrayList<>();
-                for (JTextField txt : textFieldList) {
-                    values.add(Integer.parseInt(txt.getText()));
-                }
-                mainPanel.getState().changePoints(values);
+                mainPanel.getState().move(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()));
             }
         });
-        toolBar.add(change);
+        toolBar.add(move);
+        JButton rotate = new JButton("rotate");
+        rotate.addActionListener(l -> {
+            mainPanel.changeState(new RotateState(mainPanel, this));
+        });
+        toolBar.add(rotate);
+        JButton rotateTxt = new JButton("rotate txt");
+        rotateTxt.addActionListener(l -> {
+            JPanel panel = new JPanel();
+            panel.repaint();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            JTextField xTxt = new JTextField(3);
+            JTextField yTxt = new JTextField(3);
+            panel.add(new JLabel("x:"));
+            panel.add(xTxt);
+            panel.add(new JLabel("y:"));
+            panel.add(yTxt);
+            JTextField angle = new JTextField(3);
+            panel.add(new JLabel("angle:"));
+            panel.add(angle);
+            int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                mainPanel.getState().rotateFromTxt(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()), Integer.parseInt(angle.getText()));
+            }
+        });
+        toolBar.add(rotateTxt);
+        JButton scale = new JButton("scale");
+        scale.addActionListener(l -> {
+            mainPanel.changeState(new ScaleState(mainPanel, this));
+        });
+        toolBar.add(scale);
+
+        JButton saveMenuItem = new JButton("save");
+
+        saveMenuItem.addActionListener(l -> {
+            try {
+                File file = new File("save.txt");
+                file.createNewFile();
+                FileOutputStream fileOutputStream = new FileOutputStream("save.txt");
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                objectOutputStream.writeObject(mainPanel.getState().getCanvas().getShapes());
+                objectOutputStream.flush();
+                objectOutputStream.close();
+                fileOutputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        JButton openMenuItem = new JButton("load");
+        openMenuItem.addActionListener(l -> {
+            try {
+                FileInputStream fileInputStream = new FileInputStream("save.txt");
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                ShapesList shapesList = (ShapesList) objectInputStream.readObject();
+                objectInputStream.close();
+                fileInputStream.close();
+                mainPanel.load(shapesList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        toolBar.add(saveMenuItem);
+        toolBar.add(openMenuItem);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);

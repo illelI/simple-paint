@@ -2,8 +2,12 @@ package components;
 
 import model.ShapesList;
 import state.CanvasState;
-import state.SelectState;
+import state.MoveState;
 
+import state.CanvasState.Point;
+
+import java.awt.geom.Rectangle2D;
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -16,7 +20,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     public MainPanel(Frame frame) {
         super();
-        this.state = new SelectState(this, frame);
+        this.state = new MoveState(this, frame);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
@@ -29,20 +33,28 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     public CanvasState getState() {
         return state;
     }
-
+    public void load(ShapesList shapesList) {
+        super.paint(getGraphics());
+        state.getCanvas().setShapes(shapesList);
+        state.setPointList(shapesList);
+        repaint();
+    }
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         super.paintComponent(g2d);
         g2d.setColor(Color.blue);
-        for (Shape s : state.getCanvas().getControlPoints()) {
-            if (s == null) continue;
-            g2d.fill(s);
-        }
-        g2d.setColor(Color.BLACK);
-        for (Shape s : state.getCanvas().getShapesList()) {
-            if(s == null) continue;
-            g2d.draw(s);
+        List<Point> points = getState().getPointList();
+        if (points.size() > 0) {
+            g2d.fill(new Rectangle2D.Double(points.get(0).getX() - 1, points.get(0).getY() - 1, 3, 3));
+            for (int i = 1; i < points.size(); i++) {
+                g2d.fill(new Rectangle2D.Double(points.get(i).getX() - 1, points.get(i).getY() - 1, 3, 3));
+                g2d.setColor(Color.BLACK);
+                g2d.drawLine(points.get(i - 1).getX(), points.get(i - 1).getY(), points.get(i).getX(), points.get(i).getY());
+                g2d.setColor(Color.blue);
+            }
+            g2d.setColor(Color.BLACK);
+            g2d.drawLine(points.get(points.size() - 1).getX(), points.get(points.size() - 1).getY(), points.get(0).getX(), points.get(0).getY());
         }
     }
     @Override

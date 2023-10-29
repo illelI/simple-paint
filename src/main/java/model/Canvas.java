@@ -1,5 +1,7 @@
 package model;
 
+import state.CanvasState;
+
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,29 +25,17 @@ public class Canvas implements Serializable {
     public ShapesList getShapes() {
         return shapes;
     }
-    public List<Shape> getShapesList() {
+    public List<CanvasState.Point> getShapesList() {
         return shapes.getShapes();
     }
-    public boolean addShape(Shape s) {
+    public boolean addShape(CanvasState.Point s) {
         return shapes.addShape(s);
     }
-    public List<Shape> getControlPoints() {
-        return shapes.getControlPoints();
-    }
-    public boolean addControlPoint(Shape s) {
-        return shapes.addControlPoint(s);
-    }
-    public boolean removeShape(Shape s) {
+    public boolean removeShape(CanvasState.Point s) {
         return shapes.removeShape(s);
-    }
-    public boolean removeControlPoint(Shape s) {
-        return shapes.removeControlPoint(s);
     }
     public void flushShapes() {
         shapes.flushShapes();
-    }
-    public void flushControlPoints() {
-        shapes.flushControlPoints();
     }
     public void setShapes(ShapesList shapes) {
         this.shapes = shapes;
