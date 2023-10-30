@@ -1,94 +1,169 @@
 package components;
 
-import model.ShapesList;
-import state.CanvasState;
-import state.MoveState;
-
-import state.CanvasState.Point;
-
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 
-public class MainPanel extends JPanel implements MouseListener, MouseMotionListener {
+public class MainPanel extends JPanel {
 
-    private CanvasState state;
+    private BufferedImage image;
+    private int[][] structuringElement;
 
-    public MainPanel(Frame frame) {
+    public MainPanel() {
         super();
-        this.state = new MoveState(this, frame);
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-
+        structuringElement = new int[3][3];
     }
 
-    public void changeState(CanvasState state) {
-        this.state = state;
-    }
-
-    public CanvasState getState() {
-        return state;
-    }
-    public void load(ShapesList shapesList) {
-        super.paint(getGraphics());
-        state.getCanvas().setShapes(shapesList);
-        state.setPointList(shapesList);
+    public void setImage(BufferedImage image) {
+        this.image = image;
         repaint();
     }
+
+    public BufferedImage getImage() {
+        return image;
+    }
+    public void setStructuringElement(int[][] structuringElement) {
+        this.structuringElement = structuringElement;
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         super.paintComponent(g2d);
-        g2d.setColor(Color.blue);
-        List<Point> points = getState().getPointList();
-        if (points.size() > 0) {
-            g2d.fill(new Rectangle2D.Double(points.get(0).getX() - 1, points.get(0).getY() - 1, 3, 3));
-            for (int i = 1; i < points.size(); i++) {
-                g2d.fill(new Rectangle2D.Double(points.get(i).getX() - 1, points.get(i).getY() - 1, 3, 3));
-                g2d.setColor(Color.BLACK);
-                g2d.drawLine(points.get(i - 1).getX(), points.get(i - 1).getY(), points.get(i).getX(), points.get(i).getY());
-                g2d.setColor(Color.blue);
+        g2d.drawImage(image, 0, 0, null);
+    }
+
+
+    public void prepareForPPM(Graphics g, int width, int height) {
+        super.paintComponents(g);
+        revalidate();
+        this.setPreferredSize(new Dimension(width, height));
+    }
+
+    public void dilate() {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (image.getRGB(x, y) == Color.WHITE.getRGB()) {
+                    for (int i = 0; i < structuringElement.length; i++) {
+                        for (int j = 0; j < structuringElement[i].length; j++) {
+                            int newX = x + i - structuringElement.length / 2;
+                            int newY = y + j - structuringElement[i].length / 2;
+
+                            if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                                outputImage.setRGB(newX, newY, Color.WHITE.getRGB());
+                            }
+                        }
+                    }
+                }
             }
-            g2d.setColor(Color.BLACK);
-            g2d.drawLine(points.get(points.size() - 1).getX(), points.get(points.size() - 1).getY(), points.get(0).getX(), points.get(0).getY());
         }
-    }
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        state.mouseClicked(e);
+        this.image = outputImage;
+        repaint();
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        state.mousePressed(e);
+    public void erode() {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                boolean performErosion = true;
+
+                for (int i = 0; i < structuringElement.length; i++) {
+                    for (int j = 0; j < structuringElement[i].length; j++) {
+                        int newX = x + i - structuringElement.length / 2;
+                        int newY = y + j - structuringElement[i].length / 2;
+
+                        if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                            if (image.getRGB(newX, newY) != Color.WHITE.getRGB()) {
+                                performErosion = false;
+                                break;
+                            }
+                        } else {
+                            performErosion = false;
+                            break;
+                        }
+                    }
+
+                    if (!performErosion) {
+                        break;
+                    }
+                }
+
+                if (performErosion) {
+                    outputImage.setRGB(x, y, Color.WHITE.getRGB());
+                }
+            }
+        }
+
+        this.image = outputImage;
+        repaint();
     }
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        state.mouseReleased(e);
+    public void opening() {
+        erode();
+        dilate();
     }
 
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
+    public void closing() {
+        dilate();
+        erode();
     }
 
-    @Override
-    public void mouseExited(MouseEvent e) {
+    public void hitOrMiss() {
+        int size = structuringElement[0].length;
+        int[][] missed = new int[size][size];
+        int height = image.getHeight();
+        int width = image.getWidth();
+        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
 
-    }
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if ((structuringElement[i][j] == 1)) {
+                    missed[i][j] = 0;
+                } else {
+                    missed[i][j] = 1;
+                }
+            }
+        }
 
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        state.mouseDragged(e);
-    }
+        for (int x = 1; x < width - 1; x++) {
+            for (int y = 1; y < height - 1; y++) {
+                boolean isHit = true;
 
-    @Override
-    public void mouseMoved(MouseEvent e) {
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        int rgb = image.getRGB(x + i, y + j);
+                        int pixelValue = (rgb >> 16) & 0xFF;
+
+                        if (structuringElement[j + 1][i + 1] == 1 && pixelValue != 255) {
+                            isHit = false;
+                            break;
+                        }
+                        if (missed[j + 1][i + 1] == 1 && pixelValue != 0) {
+                            isHit = false;
+                            break;
+                        }
+                    }
+
+                    if (!isHit) {
+                        break;
+                    }
+                }
+
+                int resultRGB = isHit ? 0xFFFFFF : 0x000000;
+                newImage.setRGB(x, y, resultRGB);
+            }
+        }
+        this.image = newImage;
+        repaint();
     }
 
 }

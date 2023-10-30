@@ -1,22 +1,18 @@
 package components;
 
-import model.ShapesList;
-import state.*;
-
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.io.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 
 public class Frame extends JFrame {
 
     private MainPanel mainPanel;
-    private JLabel colorInfo;
-    private JPanel statusPanel;
     public Frame(String title, int xSize, int ySize) {
         super(title);
-        mainPanel = new MainPanel(this);
+        mainPanel = new MainPanel();
         mainPanel.setBackground(Color.white);
         mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
 
@@ -26,139 +22,98 @@ public class Frame extends JFrame {
 
         setSize(xSize, ySize);
 
+        createMenuBar();
         createToolbar();
 
-        JScrollPane scrollPane = new JScrollPane(mainPanel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        contentPane.add(scrollPane);
+    }
 
-        statusPanel = new JPanel();
-        colorInfo = new JLabel();
-        statusPanel.add(colorInfo);
-        statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-        add(statusPanel, BorderLayout.SOUTH);
+    private void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem importItem = new JMenuItem("Import");
+        importItem.setActionCommand("Import");
+
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.setActionCommand("Close");
+
+        importItem.addActionListener(l -> chooseImage());
+
+
+        fileMenu.add(importItem);
+        fileMenu.add(closeMenuItem);
+
+        menuBar.add(fileMenu);
+
+        this.setJMenuBar(menuBar);
     }
 
     private void createToolbar() {
         JToolBar toolBar = new JToolBar();
-        JToggleButton selectBtn = new JToggleButton("Move");
-        JToggleButton paintBtn = new JToggleButton("Paint");
+        JButton setStructuring = new JButton("set structuring element");
+        JButton dilatation = new JButton("dilatation");
+        JButton erosion = new JButton("erosion");
+        JButton opening = new JButton("opening");
+        JButton closing = new JButton("closing");
+        JButton hitOrMiss = new JButton("hit or miss");
 
-        selectBtn.addActionListener( l -> {
-            selectBtn.setEnabled(false);
-            paintBtn.setSelected(false);
-            paintBtn.setEnabled(true);
-            mainPanel.changeState(new MoveState(mainPanel, this));
-        });
+        setStructuring.addActionListener(l -> Dialogs.setStructuringElement(this));
+        dilatation.addActionListener(l -> mainPanel.dilate());
+        erosion.addActionListener(l -> mainPanel.erode());
+        opening.addActionListener(l -> mainPanel.opening());
+        closing.addActionListener(l -> mainPanel.closing());
+        hitOrMiss.addActionListener(l -> mainPanel.hitOrMiss());
 
-        paintBtn.addActionListener(l -> {
-            selectBtn.setEnabled(true);
-            selectBtn.setSelected(false);
-            paintBtn.setEnabled(false);
-            mainPanel.changeState(new DrawState(mainPanel, this));
-        });
-
-        toolBar.add(selectBtn);
-        toolBar.add(paintBtn);
-        JButton add = new JButton("Add");
-        add.addActionListener(l -> {
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            JTextField xTxt = new JTextField(3);
-            JTextField yTxt = new JTextField(3);
-            panel.add(new JLabel("x:"));
-            panel.add(xTxt);
-            panel.add(new JLabel("y:"));
-            panel.add(yTxt);
-            int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.OK_OPTION) {
-                mainPanel.getState().addPoint(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()));
-            }
-        });
-        toolBar.add(add);
-        JButton move = new JButton("move from txt");
-        move.addActionListener(l -> {
-            JPanel panel = new JPanel();
-            panel.repaint();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            JTextField xTxt = new JTextField(3);
-            JTextField yTxt = new JTextField(3);
-            panel.add(new JLabel("x:"));
-            panel.add(xTxt);
-            panel.add(new JLabel("y:"));
-            panel.add(yTxt);
-            int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.OK_OPTION) {
-                mainPanel.getState().move(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()));
-            }
-        });
-        toolBar.add(move);
-        JButton rotate = new JButton("rotate");
-        rotate.addActionListener(l -> {
-            mainPanel.changeState(new RotateState(mainPanel, this));
-        });
-        toolBar.add(rotate);
-        JButton rotateTxt = new JButton("rotate txt");
-        rotateTxt.addActionListener(l -> {
-            JPanel panel = new JPanel();
-            panel.repaint();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            JTextField xTxt = new JTextField(3);
-            JTextField yTxt = new JTextField(3);
-            panel.add(new JLabel("x:"));
-            panel.add(xTxt);
-            panel.add(new JLabel("y:"));
-            panel.add(yTxt);
-            JTextField angle = new JTextField(3);
-            panel.add(new JLabel("angle:"));
-            panel.add(angle);
-            int result = JOptionPane.showConfirmDialog(this, panel, "Add", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.OK_OPTION) {
-                mainPanel.getState().rotateFromTxt(Integer.parseInt(xTxt.getText()), Integer.parseInt(yTxt.getText()), Integer.parseInt(angle.getText()));
-            }
-        });
-        toolBar.add(rotateTxt);
-        JButton scale = new JButton("scale");
-        scale.addActionListener(l -> {
-            mainPanel.changeState(new ScaleState(mainPanel, this));
-        });
-        toolBar.add(scale);
-
-        JButton saveMenuItem = new JButton("save");
-
-        saveMenuItem.addActionListener(l -> {
-            try {
-                File file = new File("save.txt");
-                file.createNewFile();
-                FileOutputStream fileOutputStream = new FileOutputStream("save.txt");
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                objectOutputStream.writeObject(mainPanel.getState().getCanvas().getShapes());
-                objectOutputStream.flush();
-                objectOutputStream.close();
-                fileOutputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        JButton openMenuItem = new JButton("load");
-        openMenuItem.addActionListener(l -> {
-            try {
-                FileInputStream fileInputStream = new FileInputStream("save.txt");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                ShapesList shapesList = (ShapesList) objectInputStream.readObject();
-                objectInputStream.close();
-                fileInputStream.close();
-                mainPanel.load(shapesList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        toolBar.add(saveMenuItem);
-        toolBar.add(openMenuItem);
+        toolBar.add(setStructuring);
+        toolBar.add(dilatation);
+        toolBar.add(erosion);
+        toolBar.add(opening);
+        toolBar.add(closing);
+        toolBar.add(hitOrMiss);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);
     }
 
+    private void chooseImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if(f.isDirectory()) return true;
+                String fileName = f.getName().toLowerCase();
+                return fileName.endsWith(".jpg") || fileName.endsWith("*.jpeg") || fileName.endsWith(".ppm");
+            }
+
+            @Override
+            public String getDescription() {
+                return "*.ppm, *.jpg, *.jpeg";
+            }
+        });
+        if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            loadImage(fileChooser.getSelectedFile().getAbsolutePath());
+        }
+    }
+
+    private void loadImage(String filePath) {
+        int pathLength = filePath.length();
+        String extension = filePath.toLowerCase().substring(pathLength-3);
+        if (extension.equals("jpg") || extension.equals("jpeg")) {
+            ImageIcon imageIcon = new ImageIcon(filePath);
+            Image image = imageIcon.getImage();
+            BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+            Graphics2D big = bi.createGraphics();
+            big.drawImage(image,0, 0, null);
+            mainPanel.setImage(bi);
+        } else if (extension.equals("ppm")) {
+            PPMFileReader reader = new PPMFileReader(filePath, mainPanel, this);
+            reader.draw();
+
+        } else {
+        }
+    }
+
+    public MainPanel getMainPanel() {
+        return this.mainPanel;
+    }
 }
