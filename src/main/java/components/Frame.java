@@ -10,12 +10,12 @@ import java.io.File;
 public class Frame extends JFrame {
 
     private MainPanel mainPanel;
+
     public Frame(String title, int xSize, int ySize) {
         super(title);
         mainPanel = new MainPanel();
         mainPanel.setBackground(Color.white);
         mainPanel.setBorder(BorderFactory.createLineBorder(Color.white));
-
 
         Container contentPane = getContentPane();
         contentPane.add(mainPanel);
@@ -25,6 +25,10 @@ public class Frame extends JFrame {
         createMenuBar();
         createToolbar();
 
+    }
+
+    public MainPanel getMainPanel() {
+        return this.mainPanel;
     }
 
     private void createMenuBar() {
@@ -50,26 +54,11 @@ public class Frame extends JFrame {
 
     private void createToolbar() {
         JToolBar toolBar = new JToolBar();
-        JButton setStructuring = new JButton("set structuring element");
-        JButton dilatation = new JButton("dilatation");
-        JButton erosion = new JButton("erosion");
-        JButton opening = new JButton("opening");
-        JButton closing = new JButton("closing");
-        JButton hitOrMiss = new JButton("hit or miss");
+        JButton calculate = new JButton("calculate");
 
-        setStructuring.addActionListener(l -> Dialogs.setStructuringElement(this));
-        dilatation.addActionListener(l -> mainPanel.dilate());
-        erosion.addActionListener(l -> mainPanel.erode());
-        opening.addActionListener(l -> mainPanel.opening());
-        closing.addActionListener(l -> mainPanel.closing());
-        hitOrMiss.addActionListener(l -> mainPanel.hitOrMiss());
+        calculate.addActionListener(l -> Dialogs.resultDialog(this));
 
-        toolBar.add(setStructuring);
-        toolBar.add(dilatation);
-        toolBar.add(erosion);
-        toolBar.add(opening);
-        toolBar.add(closing);
-        toolBar.add(hitOrMiss);
+        toolBar.add(calculate);
         toolBar.setFloatable(false);
 
         this.add(toolBar, BorderLayout.NORTH);
@@ -82,12 +71,12 @@ public class Frame extends JFrame {
             public boolean accept(File f) {
                 if(f.isDirectory()) return true;
                 String fileName = f.getName().toLowerCase();
-                return fileName.endsWith(".jpg") || fileName.endsWith("*.jpeg") || fileName.endsWith(".ppm");
+                return fileName.endsWith(".jpg") || fileName.endsWith("*.jpeg") || fileName.endsWith(".ppm") || fileName.endsWith(".png");
             }
 
             @Override
             public String getDescription() {
-                return "*.ppm, *.jpg, *.jpeg";
+                return "*.ppm, *.jpg, *.jpeg, *.png";
             }
         });
         if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -111,9 +100,5 @@ public class Frame extends JFrame {
 
         } else {
         }
-    }
-
-    public MainPanel getMainPanel() {
-        return this.mainPanel;
     }
 }
